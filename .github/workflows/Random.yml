@@ -3,7 +3,7 @@ name: Generate Random Python File
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
