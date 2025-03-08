@@ -1,27 +1,32 @@
 name: Generate Random Python File
 
-on: [workflow_dispatch]  # Allows manual triggering from GitHub UI
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   generate-file:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Generate Random Python File
+      - name: Generate random Python file
         run: |
-          RANDOM_NAME="script_$(date +%s).py"
-          echo 'print("Hello from $RANDOM_NAME")' > $RANDOM_NAME
-          echo "Generated file: $RANDOM_NAME"
+          FILENAME="random_script_$(date +%s).py"
+          echo "import random" > $FILENAME
+          echo "print(random.randint(1, 100))" >> $FILENAME
+          echo "Generated file: $FILENAME"
+          echo "FILENAME=$FILENAME" >> $GITHUB_ENV
 
-      - name: Commit and Push File
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add *.py
-          git commit -m "Added a random Python script"
-          git push
+      - name: Commit and push changes
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Add randomly generated Python file"
+          git push https://$GH_PAT@github.com/${{ github.repository }}.git
