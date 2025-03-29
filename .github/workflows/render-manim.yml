@@ -21,17 +21,34 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
+      - name: Install System Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y libcairo2-dev ffmpeg texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
+          echo "System dependencies installed!"
+
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install manim
+          pip install manim numpy scipy
+          echo "Python dependencies installed!"
+
+      - name: Verify Installations
+        run: |
+          manim --version
+          ffmpeg -version
+          latex --version
+          echo "All installations verified!"
 
       - name: Render Animation
         run: |
-          manim -pql hello.py HelloScene
+          manim -pql -v WARNING hello.py HelloScene
+
+      - name: Check Output Directory
+        run: ls -R media/videos || echo "No video found!"
 
       - name: Upload Rendered Video
         uses: actions/upload-artifact@v3
         with:
           name: hello-animation
-          path: media/videos/1080p60/hello.mp4
+          path: media/videos/**/*.mp4
